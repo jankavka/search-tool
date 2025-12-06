@@ -13,6 +13,8 @@ public class HttpMessageNotReadableExceptionAdvice {
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<Map<String, String>> handleException(HttpMessageNotReadableException e ){
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "Query must not be null"));
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(Map.of("message", "Query must not be null"));
     }
 }

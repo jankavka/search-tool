@@ -4,6 +4,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let input = document.getElementById("my-input");
   let results = document.getElementById("results");
   let errorMessage = document.getElementById("errorMessage");
+  let lastSearchedQuery;
   let items;
 
   /**
@@ -18,7 +19,7 @@ document.addEventListener("DOMContentLoaded", () => {
       let errorResponse = await response.json();
       throw new Error(errorResponse.message);
     }
-
+    
     return response.json();
   };
 
@@ -34,27 +35,37 @@ document.addEventListener("DOMContentLoaded", () => {
       let errorResponse = await response.json();
       throw new Error(errorResponse.message);
     }
-    console.log(response);
 
     return response.blob();
   };
 
-  /**
-   * Methods adds event listener to an element to get results form 
-   * google search call on server, based on query param taken from 
-   * input element.
-   */
-  searchButton.addEventListener("click", () => {
-    errorMessage.setAttribute("hidden", "true");
+  //Removes all child elements form the rwsult element
+  const removeElements = () => {
     let child = results.lastElementChild;
+
     while (child) {
       results.removeChild(child);
       child = results.lastElementChild;
     }
+  };
+
+  /**
+   * Methods adds event listener to an element to get results form
+   * google search call on server, based on query param taken from
+   * input element.
+   */
+  searchButton.addEventListener("click", () => {
+    //Sets element with error message hidden
+    errorMessage.setAttribute("hidden", "true");
+
+    removeElements();
+
     let query = input.value;
 
+    //fetches data and sets up child elements
     fetchData(query)
       .then((data) => {
+        lastSearchedQuery = query;
         items = data;
 
         for (let item of items) {
@@ -81,25 +92,26 @@ document.addEventListener("DOMContentLoaded", () => {
       .catch((error) => {
         console.error(error.message);
 
+        //Setting up error element
         errorMessage.innerText = error.message;
-
         errorMessage.removeAttribute("hidden");
       });
   });
 
   /**
    * Method adds event listener to saveButton element to invoke donwload
-   * of json file coming from google search call on server, based 
+   * of json file coming from google search call on server, based
    * on query param taken from input element.
    */
   saveButton.addEventListener("click", () => {
+    //Sets element with error message hidden
     errorMessage.setAttribute("hidden", "true");
-    let child = results.lastElementChild;
-    while (child) {
-      results.removeChild(child);
-      child = results.lastElementChild;
-    }
+
     let query = input.value;
+
+    if (query !== lastSearchedQuery) {
+      removeElements();
+    }
 
     downloadData(query)
       .then((blob) => {

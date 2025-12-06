@@ -14,7 +14,6 @@ import org.springframework.web.client.RestTemplate;
 
 import java.io.*;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.List;
 
 @Service
@@ -37,8 +36,8 @@ public class SearchServiceImpl implements SearchService {
      * mapped with using ObjectMapper to JsonNone, based on path "items", and then to List<Item> object.
      *
      * @param query String which contains subject of searching
-     * @return first page of returned list of items
-     * @throws IOException when
+     * @return First page of returned list of items
+     * @throws IOException when there error appears during I/O operation
      */
     @Override
     public synchronized List<Item> getResults(String query) throws IOException {
@@ -59,11 +58,20 @@ public class SearchServiceImpl implements SearchService {
         return objectMapper.readValue(itemsNode.toString(), new TypeReference<List<Item>>() {
         });
 
-
     }
 
+    /**
+     * Method creates temporary file, then writes returned values of Google search API
+     * call to the file and returns ResponseEntity with file content as byte array.
+     *
+     * @param query String which contains subject of searching
+     * @return Response entity with file content as body
+     * @throws IOException when there error appears during I/O operation
+     */
     @Override
     public synchronized ResponseEntity<byte[]> downloadResults(String query) throws IOException {
+
+        //Replacing whitespaces
         var queryForFileName = "";
         if (query.contains(" ")) {
             queryForFileName = query.replace(" ", "_");
@@ -75,7 +83,7 @@ public class SearchServiceImpl implements SearchService {
         //Temporary file where search results will be written
         var path = Files.createTempFile(queryForFileName + "_search-results", ".json");
 
-        //Path to temporary file
+        //Creates File instance of created temp file
         var file = new File(path.toString());
 
         //Writing results to temporary file
