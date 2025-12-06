@@ -122,7 +122,7 @@ document.addEventListener("DOMContentLoaded", () => {
         //setting URL object as href attribute
         link.href = url;
         //setting download attribute
-        link.setAttribute("download", "result.json");
+        link.setAttribute("download", "search-result.json");
         document.body.appendChild(link);
         //downolad invoked
         link.click();
