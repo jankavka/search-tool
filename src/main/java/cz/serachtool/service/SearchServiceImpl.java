@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import cz.serachtool.dto.Item;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -17,6 +18,7 @@ import java.nio.file.Path;
 import java.util.List;
 
 @Service
+@Slf4j
 public class SearchServiceImpl implements SearchService {
 
     @Value("${google.api-key}")
@@ -29,17 +31,15 @@ public class SearchServiceImpl implements SearchService {
 
     private final RestTemplate restTemplate = new RestTemplate();
 
-    private List<Item> results;
-
-
-    public List<Item> getResults() {
-        return results;
-    }
-
-    public void setResults(List<Item> results) {
-        this.results = results;
-    }
-
+    /**
+     * Method calls Google custom search API with query param and also with generated api key and
+     * cx. Then with using RestTemplate result data as String object is fetched from GSC API and then
+     * mapped with using ObjectMapper to JsonNone, based on path "items", and then to List<Item> object.
+     *
+     * @param query String which contains subject of searching
+     * @return first page of returned list of items
+     * @throws IOException when
+     */
     @Override
     public synchronized List<Item> getResults(String query) throws IOException {
 
@@ -71,31 +71,32 @@ public class SearchServiceImpl implements SearchService {
         } else {
             queryForFileName = query;
         }
-        var file = new File(queryForFileName + "_" + "search-results.json");
 
-        var path = Path.of(file.getPath());
+        //Temporary file where search results will be written
+        var path = Files.createTempFile(queryForFileName + "_search-results", ".json");
 
-        try {
+        //Path to temporary file
+        var file = new File(path.toString());
 
-            objectMapper.writeValue(file, getResults(query));
+        //Writing results to temporary file
+        objectMapper.writeValue(file, getResults(query));
 
-            byte[] bytes = Files.readAllBytes(path);
+        log.info("Current search result file name: {}", file.getName());
 
-            System.out.println(file.getName());
+        //Parsing file to byte array
+        byte[] bytes = Files.readAllBytes(path);
 
-            return ResponseEntity
-                    .ok()
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + file.getName())
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(bytes);
-
-
-        } finally {
-            Files.delete(path);
-        }
+        return ResponseEntity
+                .ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + file.getName())
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(bytes);
 
 
     }
 
 
 }
+
+
+

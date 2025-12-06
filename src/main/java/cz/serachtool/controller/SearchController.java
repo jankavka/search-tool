@@ -2,8 +2,6 @@ package cz.serachtool.controller;
 
 import cz.serachtool.dto.Item;
 import cz.serachtool.service.SearchService;
-import jakarta.annotation.Nonnull;
-import jakarta.annotation.Nullable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,13 +21,13 @@ public class SearchController {
 
 
     @GetMapping
-    public List<Item> getResult(@RequestBody String query) throws IOException {
+    public List<Item> getResult(@RequestParam("query") String query) throws IOException {
         return service.getResults(query);
 
     }
 
     @GetMapping("/download")
-    public ResponseEntity<byte[]> downloadFile(@RequestBody String query) throws IOException{
+    public ResponseEntity<byte[]> downloadFile(@RequestParam("query") String query) throws IOException {
         return service.downloadResults(query);
     }
 }
