@@ -15,6 +15,6 @@ public class HttpClientErrorExceptionAdvice {
     public ResponseEntity<Map<String, String>> handleException(HttpClientErrorException e){
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(Map.of("message", "Query must not be null"));
+                .body(Map.of("message", "Server Error: Query must not be null"));
     }
 }
