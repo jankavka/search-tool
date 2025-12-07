@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -23,20 +25,18 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class SearchServiceTest {
 
-
+    @Mock
     RestTemplate restTemplate;
 
-
     ObjectMapper objectMapper;
-
 
     SearchServiceImpl service;
 
     @BeforeEach
     void setUp() {
-        restTemplate = mock(RestTemplate.class);
+
         objectMapper = new ObjectMapper();
-        service = new SearchServiceImpl(objectMapper, restTemplate);
+        service = new SearchServiceImpl(objectMapper,restTemplate);
 
         service.setApiKey("1234");
         service.setCx("abc");
