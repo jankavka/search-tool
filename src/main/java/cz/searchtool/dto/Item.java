@@ -1,4 +1,4 @@
-package cz.serachtool.dto;
+package cz.searchtool.dto;
 
 import lombok.Data;
 

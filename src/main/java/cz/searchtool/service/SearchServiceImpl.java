@@ -1,9 +1,11 @@
-package cz.serachtool.service;
+package cz.searchtool.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import cz.serachtool.dto.Item;
+import cz.searchtool.dto.Item;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -16,8 +18,11 @@ import java.io.*;
 import java.nio.file.Files;
 import java.util.List;
 
-@Service
+
 @Slf4j
+@Setter
+@Getter
+@Service
 public class SearchServiceImpl implements SearchService {
 
     @Value("${google.api-key}")
@@ -26,9 +31,18 @@ public class SearchServiceImpl implements SearchService {
     @Value("${google.cx}")
     private String cx;
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    @Value("${google.url-prefix}")
+    private String urlPrefix;
 
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final ObjectMapper objectMapper;
+
+    private final RestTemplate restTemplate;
+
+    public SearchServiceImpl(ObjectMapper objectMapper, RestTemplate restTemplate) {
+        this.objectMapper = objectMapper;
+        this.restTemplate = restTemplate;
+
+    }
 
     /**
      * Method calls Google custom search API with query param and also with generated api key and
@@ -43,13 +57,13 @@ public class SearchServiceImpl implements SearchService {
     public synchronized List<Item> getResults(String query) throws IOException {
 
         //Url with api key and cx
-        var urlString = "https://www.googleapis.com/customsearch/v1?key=" + apiKey + "&cx=" + cx + "&q=";
+        var finalUrlString = urlPrefix + "key=" + apiKey + "&cx=" + cx + "&q=";
 
         //config for not throwing exception while not reading all attributes of incoming object
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
         //Response entity with results as String
-        var response = restTemplate.getForEntity(urlString + query, String.class);
+        var response = restTemplate.getForEntity(finalUrlString + query, String.class);
 
         //Items as JsonNode
         var itemsNode = objectMapper.readTree(response.getBody()).path("items");

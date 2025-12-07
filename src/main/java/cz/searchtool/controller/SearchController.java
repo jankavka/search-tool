@@ -1,7 +1,7 @@
-package cz.serachtool.controller;
+package cz.searchtool.controller;
 
-import cz.serachtool.dto.Item;
-import cz.serachtool.service.SearchService;
+import cz.searchtool.dto.Item;
+import cz.searchtool.service.SearchService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,22 +12,21 @@ import java.util.List;
 @RequestMapping("/search")
 public class SearchController {
 
+    private final SearchService searchService;
 
-    private final SearchService service;
-
-    public SearchController(SearchService service) {
-        this.service = service;
+    public SearchController(SearchService searchService) {
+        this.searchService = searchService;
     }
 
 
     @GetMapping
     public List<Item> getResult(@RequestParam("query") String query) throws IOException {
-        return service.getResults(query);
+        return searchService.getResults(query);
 
     }
 
     @GetMapping("/download")
     public ResponseEntity<byte[]> downloadFile(@RequestParam("query") String query) throws IOException {
-        return service.downloadResults(query);
+        return searchService.downloadResults(query);
     }
 }

@@ -1,6 +1,6 @@
-package cz.serachtool.service;
+package cz.searchtool.service;
 
-import cz.serachtool.dto.Item;
+import cz.searchtool.dto.Item;
 import org.springframework.http.ResponseEntity;
 
 import java.io.IOException;

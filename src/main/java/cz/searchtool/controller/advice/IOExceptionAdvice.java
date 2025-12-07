@@ -1,4 +1,4 @@
-package cz.serachtool.controller.advice;
+package cz.searchtool.controller.advice;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
