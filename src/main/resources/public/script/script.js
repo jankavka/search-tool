@@ -39,7 +39,7 @@ document.addEventListener("DOMContentLoaded", () => {
     return response.blob();
   };
 
-  //Removes all child elements form the rwsult element
+  //Removes all child elements form the result element
   const removeElements = () => {
     let child = results.lastElementChild;
 
