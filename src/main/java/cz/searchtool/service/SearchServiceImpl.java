@@ -84,18 +84,8 @@ public class SearchServiceImpl implements SearchService {
      */
     @Override
     public synchronized ResponseEntity<byte[]> downloadResults(String query) throws IOException {
-
-        //Replacing whitespaces
-        var queryForFileName = "";
-        if (query.contains(" ")) {
-            queryForFileName = query.replace(" ", "_");
-            queryForFileName = queryForFileName.trim();
-        } else {
-            queryForFileName = query;
-        }
-
         //Temporary file where search results will be written
-        var path = Files.createTempFile(queryForFileName + "_search-results", ".json");
+        var path = Files.createTempFile( "search-results", ".json");
 
         //Creates File instance of created temp file
         var file = new File(path.toString());
