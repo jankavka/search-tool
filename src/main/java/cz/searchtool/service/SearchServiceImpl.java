@@ -1,7 +1,6 @@
 package cz.searchtool.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import cz.searchtool.dto.Item;
 import lombok.Getter;
@@ -13,6 +12,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -54,16 +54,18 @@ public class SearchServiceImpl implements SearchService {
      * @throws IOException when there error appears during I/O operation
      */
     @Override
-    public synchronized List<Item> getResults(String query) throws IOException {
+    public List<Item> getResults(String query) throws IOException {
 
-        //Url with api key and cx
-        var finalUrlString = urlPrefix + "key=" + apiKey + "&cx=" + cx + "&q=";
-
-        //config for not throwing exception while not reading all attributes of incoming object
-        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        //Final uri with encoded query param
+        var uri = UriComponentsBuilder.fromUriString(urlPrefix)
+                .queryParam("key", apiKey)
+                .queryParam("cx", cx)
+                .queryParam("q", query)
+                .build()
+                .toUri();
 
         //Response entity with results as String
-        var response = restTemplate.getForEntity(finalUrlString + query, String.class);
+        var response = restTemplate.getForEntity(uri, String.class);
 
         //Items as JsonNode
         var itemsNode = objectMapper.readTree(response.getBody()).path("items");
@@ -83,9 +85,9 @@ public class SearchServiceImpl implements SearchService {
      * @throws IOException when there error appears during I/O operation
      */
     @Override
-    public synchronized ResponseEntity<byte[]> downloadResults(String query) throws IOException {
+    public ResponseEntity<byte[]> downloadResults(String query) throws IOException {
         //Temporary file where search results will be written
-        var path = Files.createTempFile( "search-results", ".json");
+        var path = Files.createTempFile("search-results", ".json");
 
         //Creates File instance of created temp file
         var file = new File(path.toString());
@@ -97,6 +99,9 @@ public class SearchServiceImpl implements SearchService {
 
         //Parsing file to byte array
         byte[] bytes = Files.readAllBytes(path);
+
+        //Deletes file
+        Files.delete(path);
 
         return ResponseEntity
                 .ok()

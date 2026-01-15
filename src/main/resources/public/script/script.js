@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
    * @returns json object
    */
   const fetchData = async (query = "") => {
-    response = await fetch(`search?query=${query}`);
+    const response = await fetch(`search?query=${query}`);
 
     if (!response.ok) {
       let errorResponse = await response.json();
@@ -24,7 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   /**
-   * Method downolads blob data form server based on query param
+   * Method downloads blob data form server based on query param
    * @param {*} query used for google search
    * @returns blob object
    */
@@ -124,7 +124,7 @@ document.addEventListener("DOMContentLoaded", () => {
         //setting download attribute
         link.setAttribute("download", "search-result.json");
         document.body.appendChild(link);
-        //downolad invoked
+        //download invoked
         link.click();
         //element removed
         document.body.removeChild(link);

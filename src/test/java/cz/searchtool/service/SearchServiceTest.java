@@ -14,10 +14,11 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
@@ -53,14 +54,14 @@ class SearchServiceTest {
                 }
                 """;
 
-        when(restTemplate.getForEntity(anyString(), eq(String.class))).thenReturn(ResponseEntity.ok(responseBody));
+        when(restTemplate.getForEntity(any(URI.class), eq(String.class))).thenReturn(ResponseEntity.ok(responseBody));
 
         var result = service.getResults("java");
 
         assertNotNull(result);
         assertEquals("This is snippet", result.get(0).getSnippet());
 
-        verify(restTemplate, times(1)).getForEntity(contains("java"), eq(String.class));
+        verify(restTemplate, times(1)).getForEntity(any(URI.class), eq(String.class));
 
     }
 
@@ -72,19 +73,19 @@ class SearchServiceTest {
                 }
                 """;
 
-        when(restTemplate.getForEntity(anyString(), eq(String.class)))
+        when(restTemplate.getForEntity(any(URI.class), eq(String.class)))
                 .thenReturn(ResponseEntity.ok().body(responseBody));
 
         var result = service.getResults("query");
 
         assertEquals(List.of(), result);
-        verify(restTemplate, times(1)).getForEntity(anyString(), eq(String.class));
+        verify(restTemplate, times(1)).getForEntity(any(URI.class), eq(String.class));
     }
 
     @Test
     void shouldReturnExceptionMessage() {
 
-        when(restTemplate.getForEntity(anyString(), eq(String.class)))
+        when(restTemplate.getForEntity(any(URI.class), eq(String.class)))
                 .thenThrow(new HttpClientErrorException(HttpStatus.NOT_FOUND));
 
         assertThrows(HttpClientErrorException.class, () -> service.getResults("query"));
@@ -94,7 +95,7 @@ class SearchServiceTest {
 
     @Test
     void shouThrowIOException() {
-        when(restTemplate.getForEntity(anyString(), eq(String.class)))
+        when(restTemplate.getForEntity(any(URI.class), eq(String.class)))
                 .thenReturn(ResponseEntity.ok().body("{ Invalid json"));
 
         var exception = assertThrows(IOException.class, () -> service.getResults("query"));
@@ -124,7 +125,7 @@ class SearchServiceTest {
 
         ResponseEntity<String> response = ResponseEntity.ok().body(responseJson);
 
-        when(restTemplate.getForEntity(anyString(), eq(String.class))).thenReturn(response);
+        when(restTemplate.getForEntity(any(URI.class), eq(String.class))).thenReturn(response);
 
         var result = service.downloadResults("query");
 
